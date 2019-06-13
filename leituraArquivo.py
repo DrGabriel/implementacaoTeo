@@ -6,8 +6,8 @@ class ManipulaArquivo:
         restricoesDistancia = np.loadtxt("restricoesDistancia.txt", dtype='i', delimiter=' ')
         print(restricoesDistancia)
         restricoesNumeroFrequencia = np.loadtxt("restricoesNumeroFrequencia.txt", dtype='i', delimiter=' ')
-        print(restricoesNumeroFrequencia)    
+        print(restricoesNumeroFrequencia)   
 
-
-a = ManipulaArquivo()
-a.inicializaVariaveis()
+        qtdFrequenciasDisponiveis = np.loadtxt("qtdFrequenciasDisponiveis.txt", dtype='i', delimiter=' ')
+        print(qtdFrequenciasDisponiveis) 
+        return restricoesDistancia, restricoesNumeroFrequencia, qtdFrequenciasDisponiveis
