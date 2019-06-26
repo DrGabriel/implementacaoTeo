@@ -6,4 +6,4 @@ from construcao import Construcao
 restricoesDistancia, restricoesNumeroFrequencia,qtdFrequenciasDisponiveis = ManipulaArquivo().inicializaVariaveis()
 solucaoInicial = Construcao().construcaoSolucaoInicial(restricoesDistancia, restricoesNumeroFrequencia,qtdFrequenciasDisponiveis)
 
-a = BuscaTabu().calculaCusto(restricoesDistancia,solucaoInicial,qtdFrequenciasDisponiveis)
+BuscaTabu().heuristica(restricoesDistancia,solucaoInicial,qtdFrequenciasDisponiveis, restricoesNumeroFrequencia)
