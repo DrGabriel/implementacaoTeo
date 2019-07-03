@@ -7,6 +7,7 @@ import sys
 class BuscaTabu:
     def heuristica(self,restricoesDistancia,solucaoAtual,qtdFrequenciasDisponiveis, restricoesNumeroFrequencia):
         qtdIteracoes = 10000
+        tamanhoListaTabu = 5
         #inicializo lista tabu, sem tamanho definido ainda!
         listaTabu = []
         #gero solucao inicial
@@ -31,10 +32,14 @@ class BuscaTabu:
 
             #para cada célula, tento dar um swap
             for indiceCelula in range(0,len(restricoesDistancia)):
+                
                 #Melhor valor de custo durante a exploração da vizinhança da celula
                 #Isso é feito para ser possível explorar todo o espaço de busca
                 #E não ficar preso em um vale que possui uma solução muito boa
+
                 melhorCustoLocal = self.calculaCusto(restricoesDistancia,xAtual,qtdFrequenciasDisponiveis)
+
+
                 for frequencia in range (0,qtdFrequenciasDisponiveis):
                     #Se possuo frequencia alocada, tento trocar
                     if(xAtual[indiceCelula][frequencia] == 1):
@@ -44,6 +49,11 @@ class BuscaTabu:
                                     #tabulist = (indiceCelula,fx);(indiceCelula,fy)
                                     stringMovimento = "("+str(indiceCelula)+","+str(frequencia)+");("+str(indiceCelula)+","+str(frequenciaCelulaSwap)+")"
                                     if stringMovimento not in listaTabu:
+                                        
+                                        if(len(listaTabu) > tamanhoListaTabu):
+                                            #lista tabu esta cheia, removo movimento mais antigo
+                                            listaTabu.pop(0)
+
                                         #coloco movimento na lista tabu
                                         listaTabu.append(stringMovimento) 
                                         #faco swap
@@ -57,6 +67,7 @@ class BuscaTabu:
                                             #desfaz swap
                                             xAtual[indiceCelula][frequencia] = 1
                                             xAtual[indiceCelula][frequenciaCelulaSwap] = 0
+
 
                 #atualizo xAtual com o melhor x local
                 xAtual = copy.deepcopy(xBestLocal)
