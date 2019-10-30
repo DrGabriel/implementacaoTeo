@@ -1,0 +1,11 @@
+1,17 segundos 1 thread - 1000 iteracoes, 4 canais , 11 frequencias disponiveis
+0,99 segundos 8 threads- 1000 iteracoes, 4 canais, 11 frequencias disponiveis
+0,7  segundos 4 threads- 1000 iteracoes, 4 canais, 11 frequencias disponiveis
+--------------------------------------------------------------------------------
+11,2 segundos  1thread   - 10000 iteracoes, 4 canais, 11 frequencias disponiveis
+9,4  segundos  8 threads - 10000 iteracoes, 4 canais, 11 frequencias disponiveis
+6,9  segundos  4 threads - 10000 iteracoes, 4 canais, 11 frequencias disponiveis
+--------------------------------------------------------------------------------
+411,1   segundos   1 thread - 1000 iteracoes, 21 canais, 381 frequencias disponiveis
+186,048 segundos   4 threads- 1000 iteracoes, 21 canais, 381 frequencias disponiveis
+78,9    segundos   8 threads- 1000 iteracoes, 21 canais, 381 frequencias disponiveis

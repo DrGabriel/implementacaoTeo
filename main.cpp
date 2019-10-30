@@ -50,11 +50,9 @@ int calculaCusto
  std::array<std::array<int, TOTALFREQUENCIA>, TAMANHOMATRIZ> solucaoAtual,
  int totalFrequencias){
     int custo = 0;
-    int i = 0;
-    int j = 0;
 
-    for(i=0; i<TAMANHOMATRIZ; i++){
-        for(j=0; j<TAMANHOMATRIZ; j++){
+    for(int i=0; i<TAMANHOMATRIZ; i++){
+        for(int j=0; j<TAMANHOMATRIZ; j++){
             if (i != j){
                for (int frequenciaI = 0; frequenciaI<totalFrequencias; frequenciaI++){
 //se sim esta verifica se as restricoes de distancias foram violadas em relacao a j
@@ -85,17 +83,16 @@ std::array<std::array<int, TOTALFREQUENCIA>, TAMANHOMATRIZ> geraSolucaoInicial
     }
     std::vector<int> canais;
     int totalFrequenciaCelula = 0;
-    int contadorQtdFrequenciasCelula = 0;
-    int indice = 0;
     int melhorCusto = -1;
     int custoAtual = 0;
     int frequenciaEscolhida = 0;
     int frequencia = 0;
-    #pragma omp parallel for
-    for(indice = 0; indice < TAMANHOMATRIZ; indice++){
+
+    for(int indice = 0; indice < TAMANHOMATRIZ; indice++){
+
         totalFrequenciaCelula = restricoesFrequencia[indice];
-        #pragma omp parallel for
-        for(contadorQtdFrequenciasCelula = 0; contadorQtdFrequenciasCelula<totalFrequenciaCelula; contadorQtdFrequenciasCelula++){
+
+        for(int contadorQtdFrequenciasCelula = 0; contadorQtdFrequenciasCelula<totalFrequenciaCelula; contadorQtdFrequenciasCelula++){
 
             //vejo qual frequencia vou escolher
             bool encontrouFrequencia = false;
@@ -106,6 +103,7 @@ std::array<std::array<int, TOTALFREQUENCIA>, TAMANHOMATRIZ> geraSolucaoInicial
                     encontrouFrequencia = true;
                 }
             }
+
 
         }
     }
@@ -121,75 +119,94 @@ void heuristica(
     std::array<std::array<int, TOTALFREQUENCIA>, TAMANHOMATRIZ> solucaoInicial =
         geraSolucaoInicial(restricoesDistancia,restricoesFrequencia,totalFrequencias);
     int custoSolucaoInicial = 0;
-    cout << "solucao inicial: " << endl;
-    teste(solucaoInicial);
-    cout<< "custo: ";
+    cout<< "custo inicial: ";
     custoSolucaoInicial = calculaCusto(restricoesDistancia,solucaoInicial, totalFrequencias);
     cout << custoSolucaoInicial << endl;
 
     std::vector<string> listaTabu;
 
-    int qtdIteracoes = 10000;
+    int qtdIteracoes = 1000;
     int tamanhoListaTabu = 5;
 
     std::array<std::array<int, TOTALFREQUENCIA>, TAMANHOMATRIZ>xBest;
-    std::array<std::array<int, TOTALFREQUENCIA>, TAMANHOMATRIZ>xBestLocal;
-    std::array<std::array<int, TOTALFREQUENCIA>, TAMANHOMATRIZ>xAtual;
     copia(solucaoInicial,xBest);
-    copia(solucaoInicial,xBestLocal);
-    copia(solucaoInicial,xAtual);
-
     int melhorCusto = custoSolucaoInicial;
-    int melhorCustoLocal = 0;
-    int indiceCelula = 0;
-    int frequencia = 0;
-    int frequenciaCelulaSwap = 0;
-    int custoIteracaoAtual = 0;
-    string stringMovimento = "";
 
-    for(int contador = 0; contador< qtdIteracoes; contador++){
-        #pragma omp parallel for
-        for(indiceCelula = 0; indiceCelula < TAMANHOMATRIZ; indiceCelula++){
-            melhorCustoLocal = calculaCusto(restricoesDistancia,xAtual,totalFrequencias);
+   omp_set_dynamic(0);     // Explicitly disable dynamic teams
+    omp_set_num_threads(8);
 
-            for(frequencia = 0; frequencia < totalFrequencias; frequencia++){
-                if(xAtual[indiceCelula][frequencia] == 1){
+        cout<< "hello world" << endl;
+        std::array<std::array<int, TOTALFREQUENCIA>, TAMANHOMATRIZ>xBestLocal;
+        std::array<std::array<int, TOTALFREQUENCIA>, TAMANHOMATRIZ>xAtual;
+        copia(solucaoInicial,xBestLocal);
+        copia(solucaoInicial,xAtual);
 
-                    for(frequenciaCelulaSwap = 0; frequenciaCelulaSwap < totalFrequencias; frequenciaCelulaSwap++){
-                        if(xAtual[indiceCelula][frequenciaCelulaSwap] == 0){
+        int melhorCustoLocal = 0;
+        int custoIteracaoAtual = 0;
+        string stringMovimento = "";
 
-                            stringMovimento = "("+ std::to_string(indiceCelula)+","+ std::to_string(frequencia)+");("+ std::to_string(indiceCelula)+","+ std::to_string(frequenciaCelulaSwap)+")";
-                            if(std::find(listaTabu.begin(), listaTabu.end(), stringMovimento) == listaTabu.end()){
-                                if(listaTabu.size() > tamanhoListaTabu){
-                                   listaTabu.erase(listaTabu.begin());
+        #pragma omp parallel for schedule( static ) firstprivate(xAtual,xBestLocal,melhorCustoLocal,custoIteracaoAtual) shared(restricoesDistancia,totalFrequencias,melhorCusto)
+        for(int contador = 0; contador< qtdIteracoes; contador++){
+
+            for(int indiceCelula = 0; indiceCelula < TAMANHOMATRIZ; indiceCelula++){
+                melhorCustoLocal = calculaCusto(restricoesDistancia,xAtual,totalFrequencias);
+                for(int frequencia = 0; frequencia < totalFrequencias; frequencia++){
+
+                    if(xAtual[indiceCelula][frequencia] == 1){
+
+                        for(int frequenciaCelulaSwap = 0; frequenciaCelulaSwap < totalFrequencias; frequenciaCelulaSwap++){
+                            if(xAtual[indiceCelula][frequenciaCelulaSwap] == 0 && xAtual[indiceCelula][frequencia] == 1){
+
+                                stringMovimento = "("+ std::to_string(indiceCelula)+","+ std::to_string(frequencia)+");("+ std::to_string(indiceCelula)+","+ std::to_string(frequenciaCelulaSwap)+")";
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+                                if(std::find(listaTabu.begin(), listaTabu.end(), stringMovimento) == listaTabu.end()){
+                                    #pragma omp critical
+                                    {
+                                        if(listaTabu.size() > tamanhoListaTabu){
+                                           listaTabu.erase(listaTabu.begin());
+                                        }
+                                        listaTabu.push_back(stringMovimento);
+                                        xAtual[indiceCelula][frequencia] = 0;
+                                        xAtual[indiceCelula][frequenciaCelulaSwap] = 1;
+                                    }
+
+                                    custoIteracaoAtual = calculaCusto(restricoesDistancia,xAtual,totalFrequencias);
+                                    if(custoIteracaoAtual < melhorCustoLocal){
+                                    #pragma omp critical
+                                    {
+                                        melhorCustoLocal = custoIteracaoAtual;
+                                        copia(xAtual,xBestLocal);
+                                    }
+
+                                    }else{
+                                        #pragma omp critical
+                                        {
+                                           xAtual[indiceCelula][frequencia] = 1;
+                                           xAtual[indiceCelula][frequenciaCelulaSwap] = 0;
+                                        }
+                                    }
+
                                 }
-                                listaTabu.push_back(stringMovimento);
-                                xAtual[indiceCelula][frequencia] = 0;
-                                xAtual[indiceCelula][frequenciaCelulaSwap] = 1;
-                                custoIteracaoAtual = calculaCusto(restricoesDistancia,xAtual,totalFrequencias);
-                                if(custoIteracaoAtual < melhorCustoLocal){
-                                    melhorCustoLocal = custoIteracaoAtual;
-                                    copia(xAtual,xBestLocal);
-                                }else{
-                                   xAtual[indiceCelula][frequencia] = 1;
-                                   xAtual[indiceCelula][frequenciaCelulaSwap] = 0;
-                                }
+                ///////////////////////////////////////////////////////////////////////////
 
                             }
                         }
                     }
-                }
-            }
-            copia(xBestLocal,xAtual);
 
-            if(melhorCustoLocal < melhorCusto){
-                melhorCusto = melhorCustoLocal;
-                copia(xBestLocal,xBest);
+                }
+                #pragma omp critical
+                {
+                    copia(xBestLocal,xAtual);
+                    if(melhorCustoLocal < melhorCusto){
+                        melhorCusto = melhorCustoLocal;
+                        copia(xBestLocal,xBest);
+                    }
+                }
+
             }
         }
-    }
-    cout<< "Melhor solucao: " << endl;
-    teste(xBest);
+
+
     cout<< "custo: " << melhorCusto << endl;
 }
 
